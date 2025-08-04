@@ -1,7 +1,30 @@
 #!/usr/bin/env bash
-# Install nginx web server
+# Script that configures a new Ubuntu machine to install and configure Nginx
+# Requirements: Nginx listening on port 80, returns page containing "Holberton School"
 
-sudo apt-get update -y
-sudo apt-get install -y nginx
-sudo echo "Holberton School" > /var/www/html/index.html
-sudo service nginx restart
+# Update package list and install nginx
+apt-get update -y
+apt-get install -y nginx
+
+# Stop nginx if it's already running to avoid conflicts
+service nginx stop
+
+# Create HTML page with required content
+echo "<html><head><title>Welcome</title></head><body><h1>Welcome to nginx!</h1><p>Holberton School</p></body></html>" > /var/www/html/index.html
+
+# Set proper permissions
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
+
+# Ensure nginx configuration is correct (default config listens on port 80)
+# Remove any process that might be using port 80
+fuser -k 80/tcp 2>/dev/null || true
+
+# Start nginx service (not using systemctl as per requirements)
+service nginx start
+
+# Enable nginx to start on boot
+update-rc.d nginx enable
+
+# Force restart to ensure clean start
+service nginx restart
